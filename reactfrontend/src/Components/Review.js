@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import { useParams } from "react-router";
+import { socket } from '../socket';
 
 export default function Review() {
     const navigate = useNavigate();
@@ -27,6 +28,7 @@ export default function Review() {
             const data = await response.json()
             if (data.code === 200) {
                 console.log("review updated");
+                socket.emit("update")
 
             } else {
                 console.log("something went wrong");
@@ -43,6 +45,7 @@ export default function Review() {
             const data = await response.json()
             if (data.code === 201) {
                 console.log("review created");
+                socket.emit("update")
 
             } else {
                 console.log("something went wrong");
@@ -61,12 +64,12 @@ export default function Review() {
             title: data.data.review.review_title,
             content: data.data.review.review_content
         })
-    }, [])
+    }, [params.id])
     useEffect(() => {
         if (params.id) {
             fetchReview()
         }
-    }, [])
+    }, [fetchReview, params.id])
     const handleReset = ()=> {
         if(params.id){
             fetchReview()

@@ -2,8 +2,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
-import { io } from 'socket.io-client';
-const socket = io('http://localhost:8000');
+import { socket } from '../socket';
 const Reviews = () => {
     const navigate = useNavigate();
     const [reviews, setReviews] = useState([]);
@@ -29,6 +28,7 @@ const Reviews = () => {
                 if (response.ok) {
                     console.log(`Review with ID ${reviewId} deleted successfully.`);
                     fetchReviews()
+                    socket.emit("update")
                 } else {
                     console.error(`Error deleting review with ID ${reviewId}.`);
                 }
@@ -39,13 +39,29 @@ const Reviews = () => {
 
     };
     useEffect(() => {
-        socket.on('update', (data) => {
-            fetchReviews();
-        });
-        return () => {
-            socket.off('update');
-        };
-    }, [fetchReviews]);
+        function onConnect() {
+            console.log("connected success");
+          }
+      
+          function onDisconnect() {
+            console.log("disconnected success");
+          }
+      
+          function updateEvent(value) {
+            console.log("connected this update review event");
+            fetchReviews()
+          }
+      
+          socket.on('connect', onConnect);
+          socket.on('disconnect', onDisconnect);
+          socket.on('updateReview', updateEvent);
+      
+          return () => {
+            socket.off('connect', onConnect);
+            socket.off('disconnect', onDisconnect);
+            socket.off('updateReview', updateEvent);
+          };
+    }, []);
     return (
         <div>
             <h2>Reviews</h2>

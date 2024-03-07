@@ -2,7 +2,6 @@ const ReviewModel = require("../models/review.model")
 const { successResponse } = require("../utils/response")
 const messages = require("../utils/constant")
 const { v4: uuidv4 } = require('uuid');
-const eventIo = require('../utils/event');
 
 const getAllReviews = async (req) => {
     const reviews = await ReviewModel.find()
@@ -19,7 +18,6 @@ const createReview = async (req) => {
         review_content: content
     })
     await newReview.save()
-    eventIo.emit('update', { action: 'create' });
     return successResponse(201, messages.success.SUCCESS)
 }
 const updateReview = async (req) => {
@@ -30,7 +28,6 @@ const updateReview = async (req) => {
     review.review_title = title
     review.review_content = content
     await review.save()
-    eventIo.emit('update', { action: 'create' });
     return successResponse(200, messages.success.SUCCESS)
 }
 
@@ -43,7 +40,6 @@ const getReview = async (req) => {
 const deleteReview = async (req) => {
     const reviewId = req.params.id
     await ReviewModel.findOneAndDelete({review_id: reviewId})
-    eventIo.emit('update', { action: 'create' });
     return successResponse(200, messages.success.SUCCESS)
 }
 module.exports = {getAllReviews, createReview, getReview, updateReview, deleteReview}
